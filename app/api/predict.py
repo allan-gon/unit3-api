@@ -29,8 +29,8 @@ class RedditPost(BaseModel):
         return value
 
 
-@router.post('/predict')
-async def predict(title, body):
+@router.post('/dummy-predict')
+async def predict(item: RedditPost):
     """
     Make random baseline predictions for classification problem 🔮
 
@@ -42,7 +42,7 @@ async def predict(title, body):
     - `prediction`: string, the subreddit the model thinks this post belongs to
     """
 
-    data = RedditPost(title=title, body=body).to_df()
+    data = item.to_df()
     log.info(data)
     prediction = random.choice(['r/AMA', 'r/Politics', 'r/PCMasterrace'])
     return {
