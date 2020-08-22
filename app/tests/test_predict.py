@@ -10,27 +10,24 @@ def test_valid_input():
     response = client.post(
         '/predict',
         json={
-            'x1': 3.14,
-            'x2': -42,
-            'x3': 'banjo'
+            'title': 'First string',
+            'body': 'Another string',
         }
     )
     body = response.json()
     assert response.status_code == 200
-    assert body['prediction'] in [True, False]
-    assert 0.50 <= body['probability'] < 1
+    assert body['prediction'] in ['r/AMA', 'r/Politics', 'r/PCMasterrace']
 
 
 def test_invalid_input():
-    """Return 422 Validation Error when x1 is negative."""
+    """Return 422 Validation Error when given non-strings"""
     response = client.post(
         '/predict',
         json={
-            'x1': -3.14,
-            'x2': -42,
-            'x3': 'banjo'
+            'title': -3.14,
+            'body': 'this is a string',
         }
     )
     body = response.json()
     assert response.status_code == 422
-    assert 'x1' in body['detail'][0]['loc']
+    assert 'title' in body['detail'][0]['loc']

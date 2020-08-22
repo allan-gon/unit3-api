@@ -5,8 +5,8 @@ import uvicorn
 from app.api import predict, viz
 
 app = FastAPI(
-    title='DS API',
-    description='Lorem ipsum',
+    title='Where to Post on Reddit API',
+    description='This api expects 2 inputs title and text, and will return the subreddit the model think the post belongs in',
     version='0.1',
     docs_url='/',
 )
