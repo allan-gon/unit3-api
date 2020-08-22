@@ -6,7 +6,9 @@ import pandas as pd
 from pydantic import BaseModel, Field, validator
 
 # for the real thing
-import pickle
+# import pickle
+# with open('model', 'rb') as file:
+#         model = pickle.load(file)
 
 log = logging.getLogger(__name__)
 router = APIRouter()
@@ -41,11 +43,9 @@ async def predict(item: RedditPost):
     ### Response
     - `prediction`: string, the subreddit the model thinks this post belongs to
     """
-
     data = item.to_df()
     log.info(data)
     prediction = random.choice(['r/AMA', 'r/Politics', 'r/PCMasterrace'])
     return {
         'subreddit prediction': prediction,
-    }
-
+    }  # model.predict(data)
