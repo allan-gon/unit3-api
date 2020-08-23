@@ -69,29 +69,6 @@ class RedditPost(BaseModel):
         return value
 
 
-@router.post('/dummy-predict')
-async def predict(item: RedditPost):
-    """
-    Randomly return a sub, hence dummy predict
-
-    ### Request Body
-    - `title`: string title of the post
-    - `body`: string the content of the post
-    - `n`: int how predictions you want back when using this route regardless of n you will get back 
-    one result i did it this way so that you'd always request with the same schema. If you want multiple predictions
-    use the n-dummy-predict route
-
-    ### Response
-    - `prediction`: string, the subreddit the model thinks this post belongs to
-    """
-    data = item.to_df()
-    log.info(data)
-    prediction = random.choice(subs)
-    return {
-        'subreddit prediction': prediction,
-    }  # model.predict(data)
-
-
 @router.post('/n-dummy-predict')
 async def multiple_predict(item: RedditPost):
     """
