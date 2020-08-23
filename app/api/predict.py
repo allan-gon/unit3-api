@@ -44,6 +44,7 @@ class RedditPost(BaseModel):
     title: str = Field(..., example='This is a reddit title')
     body: str = Field(..., example='This is the text in a reddit post')
     n: int = Field(..., example=1)
+
     def to_df(self):
         """Convert pydantic object to pandas dataframe with 1 row."""
         return pd.DataFrame([{'title': self.title, 'body': self.body}])
