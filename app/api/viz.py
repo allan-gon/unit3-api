@@ -1,54 +1,31 @@
-from fastapi import APIRouter, HTTPException
-import pandas as pd
+from fastapi import APIRouter
+from .predict import RedditPost, subs
+import numpy as np
+from random import sample
 import plotly.express as px
 
 router = APIRouter()
 
 
-@router.get('/viz/{statecode}')
-async def viz(statecode: str):
+@router.post('/viz')
+async def viz(item: RedditPost):
     """
-    Visualize state unemployment rate from [Federal Reserve Economic Data](https://fred.stlouisfed.org/) 📈
-    
-    ### Path Parameter
-    `statecode`: The [USPS 2 letter abbreviation](https://en.wikipedia.org/wiki/List_of_U.S._state_and_territory_abbreviations#Table) 
-    (case insensitive) for any of the 50 states or the District of Columbia.
+    ### Request Body
+    - `title`: string the title of the post
+    - `body`: string the meat of the post
+    - `n`: int number of subreddits you want back
 
     ### Response
     JSON string to render with [react-plotly.js](https://plotly.com/javascript/react/)
     """
+    data = item.to_df()
 
-    # Validate the state code
-    statecodes = {
-        'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 
-        'CA': 'California', 'CO': 'Colorado', 'CT': 'Connecticut', 
-        'DE': 'Delaware', 'DC': 'District of Columbia', 'FL': 'Florida', 
-        'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 
-        'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas', 'KY': 'Kentucky', 
-        'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland', 
-        'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 
-        'MS': 'Mississippi', 'MO': 'Missouri', 'MT': 'Montana', 
-        'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 
-        'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York', 
-        'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 
-        'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 
-        'RI': 'Rhode Island', 'SC': 'South Carolina', 'SD': 'South Dakota', 
-        'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont', 
-        'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 
-        'WI': 'Wisconsin', 'WY': 'Wyoming'
-    }
-    statecode = statecode.upper()
-    if statecode not in statecodes:
-        raise HTTPException(status_code=404, detail=f'State code {statecode} not found')
-
-    # Get the state's unemployment rate data from FRED
-    url = f'https://fred.stlouisfed.org/graph/fredgraph.csv?id={statecode}UR'
-    df = pd.read_csv(url, parse_dates=['DATE'])
-    df.columns = ['Date', 'Percent']
+    # get predictions
+    names = sample(subs, item.n)
+    values = np.random.dirichlet(np.ones(len(names)), size=1)[0]  # replace with predict proba
 
     # Make Plotly figure
-    statename = statecodes[statecode]
-    fig = px.line(df, x='Date', y='Percent', title=f'{statename} Unemployment Rate')
-
+    fig = px.pie(values=values, names=names, title='Subreddits To Post To')
+    fig.show()
     # Return Plotly figure as JSON string
     return fig.to_json()
